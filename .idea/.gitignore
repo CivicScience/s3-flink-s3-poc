@@ -5,9 +5,9 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
-target/
-.idea/aws.xml
-.idea/*.iml
-.idea/misc.xml
-.idea/jarRepositories.xml
-.idea/encodings.xml
+*/target/
+*/aws.xml
+*/*.iml
+*/misc.xml
+*/jarRepositories.xml
+*/encodings.xml
