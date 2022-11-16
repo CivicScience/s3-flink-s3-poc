@@ -1,0 +1,31 @@
+version: "2.2"
+services:
+  jobmanager:
+    image: flink:1.16.0-scala_2.12
+    ports:
+      - "8081:8081"
+    command: standalone-job --job-classname datapipeline.DataStreamJob
+    volumes:
+      - ./:/opt/flink/usrlib
+    environment:
+      - ENABLE_BUILT_IN_PLUGINS=flink-s3-fs-hadoop-1.16.0.jar
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 2
+
+  taskmanager:
+    image: flink:1.16.0-scala_2.12
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    scale: 1
+    volumes:
+      - ./:/opt/flink/usrlib
+    environment:
+      - ENABLE_BUILT_IN_PLUGINS=flink-s3-fs-hadoop-1.16.0.jar
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        parallelism.default: 2
