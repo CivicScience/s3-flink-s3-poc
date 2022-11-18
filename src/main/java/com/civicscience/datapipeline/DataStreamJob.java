@@ -57,9 +57,12 @@ public class DataStreamJob {
 		TextInputFormat inputFormat = new TextInputFormat(new Path("s3://civicscience-shan-dwf-poc/jotLog/AWSLogs/825286309336/elasticloadbalancing/us-east-1/"));
 		inputFormat.setNestedFileEnumeration(true);
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-		env.enableCheckpointing(100, CheckpointingMode.EXACTLY_ONCE);
+		env.enableCheckpointing(10000, CheckpointingMode.EXACTLY_ONCE);
+//		env.getCheckpointConfig().setCheckpointTimeout(100000);
+//		env.getCheckpointConfig().setCheckpointStorage("s3://");
 
-		DataStream<String> stream = env.readFile(inputFormat,"s3://civicscience-shan-dwf-poc/jotLog/AWSLogs/825286309336/elasticloadbalancing/us-east-1/", FileProcessingMode.PROCESS_CONTINUOUSLY,10,filePathFilterS3);
+
+		DataStream<String> stream = env.readFile(inputFormat,"s3://civicscience-shan-dwf-poc/jotLog/AWSLogs/825286309336/elasticloadbalancing/us-east-1/", FileProcessingMode.PROCESS_CONTINUOUSLY,10,filePathFilterS3).setParallelism(10);
 
 		DataTransformation dataTransform = new DataTransformation();
 		DataStream<String> jotLogDataStream = stream
