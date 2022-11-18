@@ -4,7 +4,7 @@ services:
     image: flink:1.16.0-scala_2.12
     ports:
       - "8081:8081"
-    command: standalone-job --job-classname datapipeline.DataStreamJob
+    command: standalone-job --job-classname com.civicscience.datapipeline.DataStreamJob
     volumes:
       - ./:/opt/flink/usrlib
     environment:
