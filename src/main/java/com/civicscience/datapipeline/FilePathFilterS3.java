@@ -3,15 +3,18 @@ package com.civicscience.datapipeline;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flink.api.common.io.FilePathFilter;
 import org.apache.flink.core.fs.Path;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FilePathFilterS3 extends FilePathFilter {
-    Pattern datePartsFromPath = Pattern.compile("\\/(?<year>\\d{4})\\/?(?<month>\\d{2})?\\/?(?<day>\\d{2})?");
+public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> {
+    private static final Logger LOG = LoggerFactory.getLogger(FilePathFilterS3.class);
+    Pattern datePartsFromPath = Pattern.compile("/(?<year>\\d{4})/?(?<month>\\d{2})?/?(?<day>\\d{2})?");
 
     private final Duration ageLimit;
 
@@ -21,7 +24,7 @@ public class FilePathFilterS3 extends FilePathFilter {
 
     @Override
     public boolean filterPath(Path path) {
-
+        LOG.info("Filtering path: {}", path.toString());
         Matcher matcher = datePartsFromPath.matcher(path.toString());
 
         if (matcher.find()) {
@@ -46,5 +49,16 @@ public class FilePathFilterS3 extends FilePathFilter {
         }
 
         return true;
+    }
+
+    @Override
+    public boolean test(Path path) {
+        return acceptFile(path);
+    }
+    private boolean acceptFile(Path path) {
+        final String name = path.getName();
+        return !name.startsWith("_")
+                && !name.startsWith(".")
+                && !filterPath(path);
     }
 }

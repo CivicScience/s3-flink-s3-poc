@@ -1,12 +1,13 @@
 package com.civicscience.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-import java.sql.Timestamp;
 
 @Getter
 @Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class JotLog {
 
     private Integer sequence;
