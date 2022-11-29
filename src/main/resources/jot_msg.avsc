@@ -1,0 +1,142 @@
+{
+  "type" : "record",
+  "name" : "JotLog",
+  "namespace" : "com.civicscience.entity",
+  "fields" : [ {
+    "name" : "usage",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "questions",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "user_alias",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "space",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "is_jot",
+    "type" : ["null", "boolean"],
+    "default": null
+  }, {
+    "name" : "context",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "id",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "state",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "natures",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "meta_target_id",
+    "type" : ["null", "int"],
+    "default": null
+  }, {
+    "name" : "session_template_group",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "x_forwarded_for",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "sequence",
+    "type" : ["null", "int"],
+    "default": null
+  }, {
+    "name" : "is_container_seen",
+    "type" : ["null", "boolean"],
+    "default": null
+  }, {
+    "name" : "ad_id",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "position",
+    "type" : ["null", "int"],
+    "default": null
+  }, {
+    "name" : "gender",
+    "type" : ["null", "int"],
+    "default": null
+  }, {
+    "name" : "session_template",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "locale",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "platform",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "askable",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "user_session",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "consent_accepted",
+    "type" : ["null", "boolean"],
+    "default": null
+  }, {
+    "name" : "target_id",
+    "type" : ["null", "int"],
+    "default": null
+  }, {
+    "name" : "age",
+    "type" : ["null", "int"],
+    "default": null
+  }, {
+    "name" : "ts",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "ua_browser_family",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "ua_browser_version",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "ua_os_family",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "ua_os_version",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "ua_device_family",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "ua_is_mobile",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "ua_is_bot",
+    "type" : ["null", "string"],
+    "default": null
+  }, {
+    "name" : "language_region",
+    "type" : ["null", "string"],
+    "default": null
+  } ]
+}

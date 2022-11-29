@@ -17,3 +17,9 @@ to-do
 
 ## Run flink Application on Docker container in dev Instance
 to-do
+
+## update JotLog.java
+* download avro-tools jar file: https://dlcdn.apache.org/avro/avro-1.11.1/java/avro-tools-1.11.1.jar
+* update jot_msg.avsc
+* run command to update JotLog.java:
+	* java -jar avro-tools-1.11.1.jar compile schema src/main/resources/jot_msg.avsc src/main/java/ 
