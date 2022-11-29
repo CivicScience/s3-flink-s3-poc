@@ -30,12 +30,12 @@ public class JotLog {
     private String askable;
     private String user_session;
     private String natures;
-    private String user_agent;
     private boolean is_jot;
     private String x_forwarded_for;
     private String session_template;
     private String session_template_group;
     private String ad_id;
     private String platform;
+    private String device_class;
 
 }

@@ -29,7 +29,7 @@ public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> 
 
         if (matcher.find()) {
             ZonedDateTime limit = ZonedDateTime.now(ZoneId.of("UTC")).minus(ageLimit);
-
+          //  LOG.info("limit: {}", limit.toString());
             int year = NumberUtils.toInt(matcher.group("year"));
             int month = NumberUtils.toInt(matcher.group("month"), limit.getMonthValue());
             int day = NumberUtils.toInt(matcher.group("day"), limit.getDayOfMonth());

@@ -15,7 +15,7 @@ services:
         parallelism.default: 2
 
   taskmanager:
-    image: flink:1.16.0-scala_2.12
+    image: flink:1.15.2-scala_2.12
     depends_on:
       - jobmanager
     command: taskmanager
