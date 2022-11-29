@@ -1,4 +1,4 @@
-package com.civicscience.datapipeline;
+package com.civicscience.utils;
 
 
 import com.civicscience.entity.JotLog;
