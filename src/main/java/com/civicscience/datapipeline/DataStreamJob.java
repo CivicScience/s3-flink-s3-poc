@@ -19,6 +19,7 @@
 package com.civicscience.datapipeline;
 
 import com.civicscience.entity.JotLog;
+import com.civicscience.utils.DataTransformation;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.configuration.MemorySize;
