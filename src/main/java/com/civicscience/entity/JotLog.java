@@ -37,5 +37,14 @@ public class JotLog {
     private String ad_id;
     private String platform;
     private String device_class;
-
+    private String ip_v4;
+    private String ua_browser_family;
+    private String ua_browser_version ;
+    private String ua_os_family;
+    private String ua_os_version;
+    private String ua_device_family;
+    private boolean ua_is_mobile;
+    private boolean ua_is_bot;
+    private String ua_device_class;
+    private String cs_id;
 }
