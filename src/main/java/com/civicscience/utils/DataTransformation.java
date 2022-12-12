@@ -1,19 +1,16 @@
 package com.civicscience.utils;
 
 import com.civicscience.entity.JotLog;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.basjes.parse.useragent.UserAgent;
 import nl.basjes.parse.useragent.UserAgentAnalyzer;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.shaded.netty4.io.netty.handler.codec.http.QueryStringDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,9 +34,8 @@ public class DataTransformation implements Serializable {
             log.setTarget_id(dMap.containsKey("target") ? dMap.get("target").toString(): null);
             log.setAge(dMap.containsKey("a") ? Integer.valueOf(dMap.get("a").toString()): null);
             log.setGender(dMap.containsKey("g") ? Integer.valueOf(dMap.get("g").toString()): null);
-            log.set_container_seen(dMap.containsKey("isContainerSeen") ? dMap.get("isContainerSeen").toString().equals(
-                    "true"): false);
-            log.setNatures(dMap.containsKey("natures") ? dMap.get("natures").toString(): null);
+            log.setIsContainerSeen(dMap.containsKey("isContainerSeen") ? (boolean)dMap.get("isContainerSeen"): null);
+            log.setNatures(dMap.containsKey("natures") ? (List<String>) dMap.get("natures") : null);
             log.setUser_alias(dMap.containsKey("alias") ? dMap.get("alias").toString(): null);
             log.setPlatform(dMap.containsKey("platform") ? dMap.get("platform").toString(): null);
             log.setUser_session(dMap.containsKey("session") ? dMap.get("session").toString(): null);
@@ -47,7 +43,18 @@ public class DataTransformation implements Serializable {
             log.setAskable(dMap.containsKey("askable") ? dMap.get("askable").toString(): null);
             log.setUsage(dMap.containsKey("usage") ? dMap.get("usage").toString(): null);
             log.setPosition(dMap.containsKey("position") ? Integer.valueOf(dMap.get("position").toString()) : null);
-            log.setContext(dMap.containsKey("context") ? dMap.get("context").toString(): null);
+            log.setSession_template(dMap.containsKey("st")?dMap.get("st").toString() : null);
+            log.setSession_template_group(dMap.containsKey("stg")?dMap.get("stg").toString() : null);
+            log.setMeta_target_id(dMap.containsKey("otarget")?dMap.get("otarget").toString() : null);
+            log.setConsent_accepted(dMap.containsKey("accepted")? (boolean) dMap.get("accepted") : null);
+            log.setAd_id(dMap.containsKey("id")?dMap.get("id").toString():null);
+            if(dMap.containsKey("context") ){
+                log.setContext(dMap.get("context").toString());
+                Map<String, List<String>> parameters = new QueryStringDecoder(dMap.get("context").toString()).parameters();
+                log.setCs_id(parameters.containsKey("cvid")?parameters.get("cvid").get(0):null);
+                //Locale locale = new Locale();
+            }
+
         }
 
         UserAgent ua = transformUserAgent(list.get(13));
@@ -61,6 +68,7 @@ public class DataTransformation implements Serializable {
             log.setUa_is_mobile(ua.getValue("OperatingSystemClass").equals("Mobile"));
             log.setUa_is_bot(ua.getValue("DeviceClass").equals("Robot"));
         }
+        log.setHashCode(log.hashCode());
         return log;
     }
 
