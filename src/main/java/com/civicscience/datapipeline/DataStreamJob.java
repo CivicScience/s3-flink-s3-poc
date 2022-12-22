@@ -19,6 +19,7 @@
 package com.civicscience.datapipeline;
 
 import com.civicscience.entity.JotLog;
+import com.civicscience.metrics.MetricsMapper;
 import com.civicscience.utils.DataTransformation;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FlatMapFunction;
@@ -51,7 +52,7 @@ public class DataStreamJob {
 
 	// Number of days to look up in s3 - 18 months
 	// TODO needs to put in env variables for number of days back to look up
-	private static final FilePathFilterS3 filePathFilterS3 = new FilePathFilterS3(Duration.ofDays(10));
+	private static final FilePathFilterS3 filePathFilterS3 = new FilePathFilterS3(Duration.ofDays(1));
 	public static final String S3_SOURCE_JOTS = "S3-jots";
 	public static final int SOURCE_PARALLELISM = 10;
 
@@ -74,7 +75,7 @@ public class DataStreamJob {
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 		env.enableCheckpointing(10000, CheckpointingMode.EXACTLY_ONCE);
 		env.getCheckpointConfig().setCheckpointTimeout(100000);
-//		env.getCheckpointConfig().setCheckpointStorage("s3://");
+		env.getCheckpointConfig().setCheckpointStorage("s3://civicscience-shan-dwf-poc/checkpoints");
 
 		FileSource<String> source = FileSource.forRecordStreamFormat(
 						new TextLineInputFormat("UTF-8"),
@@ -87,7 +88,8 @@ public class DataStreamJob {
 				.build();
 
 		DataStream<String> stream = env.fromSource(source, WatermarkStrategy.forMonotonousTimestamps(),
-				S3_SOURCE_JOTS).setParallelism(SOURCE_PARALLELISM);
+				S3_SOURCE_JOTS).map(new MetricsMapper())
+				.setParallelism(SOURCE_PARALLELISM);
 
 		DataTransformation dataTransform = new DataTransformation();
 

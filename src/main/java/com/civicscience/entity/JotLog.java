@@ -1,6 +1,7 @@
 package com.civicscience.entity;
 
 import lombok.*;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,21 +45,6 @@ public class JotLog {
     private String ua_device_class;
     private boolean ua_is_mobile;
     private boolean ua_is_bot;
-    private String cs_id;
-    private Integer hashCode;
+    private String hashCode;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        JotLog jotLog = (JotLog) o;
-        return Objects.equals(id, jotLog.id) && Objects.equals(context, jotLog.context) && Objects.equals(user_alias,
-                jotLog.user_alias) && Objects.equals(user_session, jotLog.user_session) && Objects.equals(ip_v4,
-                jotLog.ip_v4);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, context, user_alias, user_session, ip_v4);
-    }
 }

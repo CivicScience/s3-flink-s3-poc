@@ -23,18 +23,18 @@ public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> 
     @Override
     public boolean filterPath(Path path) {
         LOG.info("Filtering path: {}", path.toString());
-        List<String> s = List.of(path.toString().split("/"));
+        String[] s = path.toString().split("/");
 
         ZonedDateTime limit = ZonedDateTime.now(ZoneId.of("UTC")).minus(ageLimit);
-        if (s.size() == 9 && Integer.parseInt(s.get(8)) >= limit.getYear()) return true;
-        if (s.size() == 10 && Integer.parseInt(s.get(8)) >= limit.getYear()
-                && Integer.parseInt(s.get(9)) >= limit.getMonthValue())
+        if (s.length == 9 && Integer.parseInt(s[8]) >= limit.getYear()) return true;
+        if (s.length == 10 && Integer.parseInt(s[8]) >= limit.getYear()
+                && Integer.parseInt(s[9]) >= limit.getMonthValue())
             return true;
-        if (s.size() >= 11 && Integer.parseInt(s.get(8)) >= limit.getYear()
-                && Integer.parseInt(s.get(9)) >= limit.getMonthValue()
-                && Integer.parseInt(s.get(10)) >= limit.getDayOfMonth())
+        if (s.length >= 11 && Integer.parseInt(s[8]) >= limit.getYear()
+                && Integer.parseInt(s[9]) >= limit.getMonthValue()
+                && Integer.parseInt(s[10]) >= limit.getDayOfMonth())
             return true;
-        return s.size() <= 8;
+        return s.length <= 8;
     }
 
     @Override

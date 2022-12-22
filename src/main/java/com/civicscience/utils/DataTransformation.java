@@ -3,6 +3,7 @@ package com.civicscience.utils;
 import com.civicscience.entity.JotLog;
 import nl.basjes.parse.useragent.UserAgent;
 import nl.basjes.parse.useragent.UserAgentAnalyzer;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.shaded.netty4.io.netty.handler.codec.http.QueryStringDecoder;
@@ -19,6 +20,7 @@ public class DataTransformation implements Serializable {
 
     public JotLog mapToJotLogObject(String s) {
         JotLog log = new JotLog();
+        log.setHashCode(DigestUtils.sha256Hex(s));
         List<String> list = splitTheString(s);
 
         log.setTs(list.get(1));
@@ -50,8 +52,8 @@ public class DataTransformation implements Serializable {
             log.setAd_id(dMap.containsKey("id")?dMap.get("id").toString():null);
             if(dMap.containsKey("context") ){
                 log.setContext(dMap.get("context").toString());
-                Map<String, List<String>> parameters = new QueryStringDecoder(dMap.get("context").toString()).parameters();
-                log.setCs_id(parameters.containsKey("cvid")?parameters.get("cvid").get(0):null);
+                //Map<String, List<String>> parameters = new QueryStringDecoder(dMap.get("context").toString())
+                // .parameters();
                 //Locale locale = new Locale();
             }
 
@@ -62,13 +64,12 @@ public class DataTransformation implements Serializable {
             log.setUa_device_class(ua.getValue("DeviceClass"));
             log.setUa_device_family(ua.getValue("DeviceName"));
             log.setUa_os_family(ua.getValue("OperatingSystemName"));
-            log.setUa_os_version(ua.getValue("OperatingSystemVersion"));
+            log.setUa_os_version(ua.getValue("OperatingSystemVersion") == "??"?"Unknown":ua.getValue("OperatingSystemVersion"));
             log.setUa_browser_family(ua.getValue("AgentName"));
             log.setUa_browser_version(ua.getValue("AgentVersion"));
             log.setUa_is_mobile(ua.getValue("OperatingSystemClass").equals("Mobile"));
             log.setUa_is_bot(ua.getValue("DeviceClass").equals("Robot"));
         }
-        log.setHashCode(log.hashCode());
         return log;
     }
 
