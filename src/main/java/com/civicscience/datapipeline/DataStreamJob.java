@@ -54,7 +54,9 @@ public class DataStreamJob {
 	// TODO needs to put in env variables for number of days back to look up
 	private static final FilePathFilterS3 filePathFilterS3 = new FilePathFilterS3(Duration.ofDays(1));
 	public static final String S3_SOURCE_JOTS = "S3-jots";
-	public static final int SOURCE_PARALLELISM = 10;
+	public static final int SOURCE_PARALLELISM = 1;
+
+	public static final int SINK_PARALLELISM = 5;
 
 	private final static String PROTOCOL = "s3a://";
 	//TODO needs to put in env variables
@@ -75,7 +77,7 @@ public class DataStreamJob {
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 		env.enableCheckpointing(10000, CheckpointingMode.EXACTLY_ONCE);
 		env.getCheckpointConfig().setCheckpointTimeout(100000);
-		env.getCheckpointConfig().setCheckpointStorage("s3://civicscience-shan-dwf-poc/checkpoints");
+		env.getCheckpointConfig().setCheckpointStorage("s3://civicscience-dwf-poc/checkpoints");
 
 		FileSource<String> source = FileSource.forRecordStreamFormat(
 						new TextLineInputFormat("UTF-8"),
@@ -114,7 +116,7 @@ public class DataStreamJob {
 								.build())
 				.build();
 
-		jotLogDataStream.sinkTo(sink);
+		jotLogDataStream.sinkTo(sink).setParallelism(SINK_PARALLELISM);
 
 		env.execute();
 	}
