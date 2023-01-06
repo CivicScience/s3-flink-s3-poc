@@ -5,7 +5,7 @@ import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 
-public class MetricsMapper extends RichMapFunction<JotLog, JotLog> {
+public class JotLogTransformMetricMapper extends RichMapFunction<JotLog, JotLog> {
 
   private transient Counter eventCounter;
 

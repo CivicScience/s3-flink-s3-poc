@@ -20,7 +20,7 @@ package com.civicscience.datapipeline;
 
 import com.civicscience.entity.JotLog;
 import com.civicscience.metrics.JotLogFilterMetricsMapper;
-import com.civicscience.metrics.MetricsMapper;
+import com.civicscience.metrics.JotLogTransformMetricMapper;
 import com.civicscience.model.Profiles.Profile;
 import com.civicscience.utils.DataTransformation;
 import com.civicscience.utils.ParametersReader;
@@ -107,7 +107,7 @@ public class DataStreamJob {
           public void flatMap(String s, Collector<JotLog> collector) {
             collector.collect(dataTransform.mapToJotLogObject(s));
           }
-        }).map(new MetricsMapper());
+        }).map(new JotLogTransformMetricMapper());
 
     final String fullSinkPath =
         profile.getProtocol() + profile.getFileSinkBucketName() + profile.getFileSinkInputPath();
