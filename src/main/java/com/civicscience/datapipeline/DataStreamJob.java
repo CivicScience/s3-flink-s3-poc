@@ -19,6 +19,7 @@
 package com.civicscience.datapipeline;
 
 import com.civicscience.entity.JotLog;
+import com.civicscience.metrics.JotLogFilterMetricsMapper;
 import com.civicscience.metrics.MetricsMapper;
 import com.civicscience.model.Profiles.Profile;
 import com.civicscience.utils.DataTransformation;
@@ -95,18 +96,18 @@ public class DataStreamJob {
         .build();
 
     DataStream<String> stream = env.fromSource(source, WatermarkStrategy.forMonotonousTimestamps(),
-        S3_SOURCE_JOTS).map(new MetricsMapper());
+        S3_SOURCE_JOTS);
 
     DataTransformation dataTransform = new DataTransformation();
 
     DataStream<JotLog> jotLogDataStream = stream
-        .filter(s -> s.contains(profile.getFileSourceFilter()))
+        .filter(s -> s.contains(profile.getFileSourceFilter())).map(new JotLogFilterMetricsMapper())
         .flatMap(new FlatMapFunction<String, JotLog>() {
           @Override
           public void flatMap(String s, Collector<JotLog> collector) {
             collector.collect(dataTransform.mapToJotLogObject(s));
           }
-        });
+        }).map(new MetricsMapper());
 
     final String fullSinkPath =
         profile.getProtocol() + profile.getFileSinkBucketName() + profile.getFileSinkInputPath();

@@ -2,14 +2,14 @@
   {
     "Classification": "flink-conf",
     "Properties": {
-      "fs.allowed-fallback-filesystems:s3": "s3a",
+      "fs.allowed-fallback-filesystems": "s3a",
       "env.java.home": "/usr/lib/jvm/java-11-openjdk",
       "metrics.reporter.promgateway.factory.class": "org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporterFactory",
-      "metrics.reporter.promgateway.hostUrl": "http://127.0.0.1:9091",
+      "metrics.reporter.promgateway.hostUrl": "http://localhost:9091",
       "metrics.reporter.promgateway.jobName": "DataStreamJob",
       "metrics.reporter.promgateway.randomJobNameSuffix": "false",
       "metrics.reporter.promgateway.deleteOnShutdown": "false",
-      "metrics.reporter.promgateway.interval": "5 SECONDS"
+      "metrics.reporter.promgateway.interval": "60 SECONDS"
     }
   }
 ]

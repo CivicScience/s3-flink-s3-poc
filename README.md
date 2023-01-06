@@ -12,7 +12,7 @@ to stop the cluster execute ./bin/stop-cluster.sh
 # FileSystem - s3
 We are using Flink’s Filesystem to read the files from s3. \
 This need to copy the opt/flink-s3-fs-hadoop-1.15.2.jar into plugins/s3/ \
-We need to add fs.allowed-fallback-filesystems:s3 to conf -> flink-conf.yaml \
+We need to add fs.allowed-fallback-filesystems:s3a to conf -> flink-conf.yaml \
 These steps must be performed in EMR before spinning up a cluster.
 
 # BootStrap

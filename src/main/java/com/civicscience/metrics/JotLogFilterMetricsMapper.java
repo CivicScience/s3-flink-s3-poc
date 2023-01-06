@@ -1,21 +1,20 @@
 package com.civicscience.metrics;
 
-import com.civicscience.entity.JotLog;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 
-public class MetricsMapper extends RichMapFunction<JotLog, JotLog> {
+public class JotLogFilterMetricsMapper extends RichMapFunction<String, String> {
 
   private transient Counter eventCounter;
 
   @Override
   public void open(Configuration parameters) {
-    eventCounter = getRuntimeContext().getMetricGroup().counter("TotalJotLogsTransformed");
+    eventCounter = getRuntimeContext().getMetricGroup().counter("TotalJotLogsFiltered");
   }
 
   @Override
-  public JotLog map(JotLog value) {
+  public String map(String value) {
     eventCounter.inc();
     return value;
   }
