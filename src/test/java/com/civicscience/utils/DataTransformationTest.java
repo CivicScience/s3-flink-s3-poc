@@ -1,7 +1,6 @@
-package com.civicscience.utilstest;
+package com.civicscience.utils;
 
 import com.civicscience.entity.JotLog;
-import com.civicscience.utils.DataTransformation;
 import nl.basjes.parse.useragent.UserAgent;
 import org.apache.flink.shaded.netty4.io.netty.handler.codec.http.QueryStringDecoder;
 import org.junit.Assert;

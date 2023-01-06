@@ -20,13 +20,19 @@ package com.civicscience.datapipeline;
 
 import com.civicscience.entity.JotLog;
 import com.civicscience.metrics.MetricsMapper;
+import com.civicscience.model.Profiles.Profile;
 import com.civicscience.utils.DataTransformation;
+import com.civicscience.utils.ParametersReader;
+import java.time.Duration;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.connector.file.sink.FileSink;
 import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.connector.file.src.enumerate.BlockSplittingRecursiveEnumerator;
+import org.apache.flink.connector.file.src.enumerate.FileEnumerator.Provider;
 import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -36,88 +42,88 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.util.Collector;
 
-import org.apache.flink.connector.file.src.enumerate.FileEnumerator.Provider;
-
-
-import java.time.Duration;
-
 /**
- * Flink DataStream Job.
- *To package your application into a JAR file for execution, run
- * 'mvn clean package' on the command line.
- * If you change the name of the main class (with the public static void main(String[] args))
- * method, change the respective entry in the POM.xml file (simply search for 'mainClass').
+ * Flink DataStream Job. To package your application into a JAR file for execution, run 'mvn clean
+ * package' on the command line. If you change the name of the main class (with the public static
+ * void main(String[] args)) method, change the respective entry in the POM.xml file (simply search
+ * for 'mainClass').
  */
 public class DataStreamJob {
 
-	// Number of days to look up in s3 - 18 months
-	// TODO needs to put in env variables for number of days back to look up
-	private static final FilePathFilterS3 filePathFilterS3 = new FilePathFilterS3(Duration.ofDays(1));
-	public static final String S3_SOURCE_JOTS = "S3-jots";
-	public static final int SOURCE_PARALLELISM = 1;
+  public static final String S3_SOURCE_JOTS = "S3-jots";
 
-	public static final int SINK_PARALLELISM = 5;
+  /**
+   * To specify args please follow this format --key value --key2 value2 --key3 value3
+   * <p>
+   * Specifying args will override the default all supported parameters see in
+   * default-flink-params.yml and POJO {@link Profile} When job submitted you may fins all
+   * parameters in flink job manager UI: Click on running job->Configuration tab-> User
+   * configuration section in that tab
+   */
+  public static void main(String[] args) throws Exception {
 
-	private final static String PROTOCOL = "s3a://";
-	//TODO needs to put in env variables
-	private final static String SOURCE_BUCKET_NAME = "civicscience-shan-dwf-poc";
+    ImmutablePair<Profile, ParameterTool> profilePair = ParametersReader.readParametersToPOJO(args);
 
-	//TODO needs to put in env variables
-	private final static String INPUT_PATH =
-			PROTOCOL + SOURCE_BUCKET_NAME + "/jotLog/AWSLogs/825286309336/elasticloadbalancing/us-east-1/";
+    Profile profile = profilePair.getKey();
+    // Number of days to look up in s3 - 18 months
+    FilePathFilterS3 filePathFilterS3 = new FilePathFilterS3(
+        Duration.ofDays(profile.getFileSourceLookupDaysAgo()));
 
-	//TODO needs to put in env variables
-	private final static String SINK_PATH =
-			PROTOCOL + "civicscience-dwf-poc" + "/sink";
+    // Sets up the execution environment, the main entry point
+    // to building Flink applications.
+    // FileSystem.initialize(GlobalConfiguration.loadConfiguration(System.getenv("FLINK_CONF_DIR")));
+    final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-	public static void main(String[] args) throws Exception {
-		// Sets up the execution environment, the main entry point
-		// to building Flink applications.
+    env.getConfig().setGlobalJobParameters(profilePair.getValue());
+    env.enableCheckpointing(profile.getCheckpointInterval(), CheckpointingMode.EXACTLY_ONCE);
+    env.getCheckpointConfig().setCheckpointTimeout(profile.getCheckpointTimeout());
+    env.getCheckpointConfig().setCheckpointStorage(profile.getCheckpointStorage());
 
-		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-		env.enableCheckpointing(10000, CheckpointingMode.EXACTLY_ONCE);
-		env.getCheckpointConfig().setCheckpointTimeout(100000);
-		env.getCheckpointConfig().setCheckpointStorage("s3://civicscience-dwf-poc/checkpoints");
+    final String fullSourceInputPath =
+        profile.getProtocol() + profile.getFileSourceBucketName()
+            + profile.getFileSourceInputPath();
 
-		FileSource<String> source = FileSource.forRecordStreamFormat(
-						new TextLineInputFormat("UTF-8"),
-						new Path(INPUT_PATH))
-				.monitorContinuously(Duration.ofMillis(1000))
-				.setSplitAssigner(FileSource.DEFAULT_SPLIT_ASSIGNER)
-				.setFileEnumerator(
-						(Provider) () -> new BlockSplittingRecursiveEnumerator(filePathFilterS3,
-								new String[]{"gz"}))
-				.build();
+    FileSource<String> source = FileSource.forRecordStreamFormat(
+            new TextLineInputFormat("UTF-8"),
+            new Path(fullSourceInputPath))
+        .monitorContinuously(Duration.ofMillis(profile.getFileSourceMonitorInterval()))
+        .setSplitAssigner(FileSource.DEFAULT_SPLIT_ASSIGNER)
+        .setFileEnumerator(
+            (Provider) () -> new BlockSplittingRecursiveEnumerator(filePathFilterS3,
+                new String[]{"gz"}))
 
-		DataStream<String> stream = env.fromSource(source, WatermarkStrategy.forMonotonousTimestamps(),
-				S3_SOURCE_JOTS).map(new MetricsMapper())
-				.setParallelism(SOURCE_PARALLELISM);
+        .build();
 
-		DataTransformation dataTransform = new DataTransformation();
+    DataStream<String> stream = env.fromSource(source, WatermarkStrategy.forMonotonousTimestamps(),
+        S3_SOURCE_JOTS).map(new MetricsMapper());
 
-		DataStream<JotLog> jotLogDataStream = stream
-				.filter(s -> s.contains("/jot"))
-				.flatMap(new FlatMapFunction<String, JotLog>() {
-					@Override
-					public void flatMap(String s, Collector<JotLog> collector){
-						collector.collect(dataTransform.mapToJotLogObject(s));
-					}
-				});
+    DataTransformation dataTransform = new DataTransformation();
 
+    DataStream<JotLog> jotLogDataStream = stream
+        .filter(s -> s.contains(profile.getFileSourceFilter()))
+        .flatMap(new FlatMapFunction<String, JotLog>() {
+          @Override
+          public void flatMap(String s, Collector<JotLog> collector) {
+            collector.collect(dataTransform.mapToJotLogObject(s));
+          }
+        });
 
-		final FileSink<JotLog> sink = FileSink
-				.forRowFormat(new Path(SINK_PATH), new JotEncoder())
-				.withOutputFileConfig(new OutputFileConfig("output-", ".json"))
-				.withRollingPolicy(
-						DefaultRollingPolicy.builder()
-								.withRolloverInterval(Duration.ofMinutes(1))
-								.withInactivityInterval(Duration.ofSeconds(20))
-								.withMaxPartSize(MemorySize.ofMebiBytes(10))
-								.build())
-				.build();
+    final String fullSinkPath =
+        profile.getProtocol() + profile.getFileSinkBucketName() + profile.getFileSinkInputPath();
 
-		jotLogDataStream.sinkTo(sink).setParallelism(SINK_PARALLELISM);
+    final FileSink<JotLog> sink = FileSink
+        .forRowFormat(new Path(fullSinkPath), new JotEncoder())
+        .withOutputFileConfig(new OutputFileConfig("output-", ".json"))
+        .withRollingPolicy(
+            DefaultRollingPolicy.builder()
+                .withRolloverInterval(Duration.ofMinutes(1))
+                .withInactivityInterval(Duration.ofSeconds(20))
+                .withMaxPartSize(MemorySize.ofMebiBytes(profile.getFileSinkFileSize()))
+                .build())
+        .build();
 
-		env.execute();
-	}
+    jotLogDataStream.sinkTo(sink);
+
+    env.execute();
+  }
 }
