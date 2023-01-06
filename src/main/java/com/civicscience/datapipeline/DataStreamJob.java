@@ -57,7 +57,7 @@ public class DataStreamJob {
    * To specify args please follow this format --key value --key2 value2 --key3 value3
    * <p>
    * Specifying args will override the default all supported parameters see in
-   * default-flink-params.yml and POJO {@link Profile} When job submitted you may fins all
+   * default-flink-params.yml and POJO {@link Profile} When job submitted you may find all
    * parameters in flink job manager UI: Click on running job->Configuration tab-> User
    * configuration section in that tab
    */

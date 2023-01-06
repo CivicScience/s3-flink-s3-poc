@@ -2,19 +2,19 @@ dev:
     protocol: "s3a://"
     checkpoint_interval: 1000
     checkpoint_timeout: 100000
-    checkpoint_storage: "storageSink"
+    checkpoint_storage: "testSinkBucket"
 
     filesource_parallelism: 1
     filesource_bucket_name: "testSourceBucket"
     filesource_lookup_days_ago: 1
-    filesource_input_path: "somePath"
+    filesource_input_path: "/AWSLogs/825286309336/elasticloadbalancing/us-east-1"
     filesource_filter: "/jot"
     filesource_monitor_interval: 5000
 
     filesink_parallelism: 5
     filesink_bucket_name: "testSinkBucket"
     filesink_input_path: "/sink"
-    filesink_part_size: 50
+    filesink_part_size: 100
 
 prod:
     protocol: "s3a://"

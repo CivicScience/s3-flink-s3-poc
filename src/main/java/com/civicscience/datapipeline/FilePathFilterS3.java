@@ -25,25 +25,25 @@ public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> 
     String[] s = path.toString().split("/");
 
     ZonedDateTime limit = ZonedDateTime.now(ZoneId.of("UTC")).minus(ageLimit);
-      if (s.length == 9 && Integer.parseInt(s[8]) >= limit.getYear()) {
+      if (s.length == 8 && Integer.parseInt(s[7]) >= limit.getYear()) {
           return true;
       }
-    if (s.length == 10) {
-        if (Integer.parseInt(s[8]) > limit.getYear()) {
+    if (s.length == 9) {
+        if (Integer.parseInt(s[7]) > limit.getYear()) {
             return true;
         }
-        if (Integer.parseInt(s[8]) == limit.getYear()
-            && Integer.parseInt(s[9]) >= limit.getMonthValue()) {
+        if (Integer.parseInt(s[7]) == limit.getYear()
+            && Integer.parseInt(s[8]) >= limit.getMonthValue()) {
             return true;
         }
     }
-    if (s.length >= 11) {
-        if (Integer.parseInt(s[8]) > limit.getYear()) {
+    if (s.length >= 10) {
+        if (Integer.parseInt(s[7]) > limit.getYear()) {
             return true;
         }
-        if (Integer.parseInt(s[8]) == limit.getYear()
-            && Integer.parseInt(s[9]) >= limit.getMonthValue()
-            && Integer.parseInt(s[10]) >= limit.getDayOfMonth()) {
+        if (Integer.parseInt(s[7]) == limit.getYear()
+            && Integer.parseInt(s[8]) >= limit.getMonthValue()
+            && Integer.parseInt(s[9]) >= limit.getDayOfMonth()) {
             return true;
         }
     }
