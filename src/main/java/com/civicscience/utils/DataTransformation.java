@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import nl.basjes.parse.useragent.UserAgent;
@@ -77,14 +78,14 @@ public class DataTransformation implements Serializable {
       log.setUa_device_class(ua.getValue("DeviceClass"));
       log.setUa_device_family(ua.getValue("DeviceName"));
       log.setUa_os_family(ua.getValue("OperatingSystemName"));
-      log.setUa_os_version(ua.getValue("OperatingSystemVersion") == "??" ? "Unknown"
+      log.setUa_os_version(Objects.equals(ua.getValue("OperatingSystemVersion"), "??") ? "Unknown"
           : ua.getValue("OperatingSystemVersion"));
       log.setUa_browser_family(ua.getValue("AgentName"));
       log.setUa_browser_version(ua.getValue("AgentVersion"));
       log.setUa_is_mobile(ua.getValue("OperatingSystemClass").equals("Mobile"));
       log.setUa_is_bot(ua.getValue("DeviceClass").equals("Robot"));
     }
-    LOG.info("{}", log);
+    LOG.info("Transformed Jot log : {}", log);
     return log;
   }
 
@@ -100,14 +101,11 @@ public class DataTransformation implements Serializable {
   public Map<String, List<String>> transformURL(String s) {
     String[] parts = s.split(" ");
     String url = parts[1];
-    Map<String, List<String>> parameters = new QueryStringDecoder(url).parameters();
-    return parameters;
+    return new QueryStringDecoder(url).parameters();
   }
 
   public UserAgent transformUserAgent(String user_agent) {
-
-    UserAgent agent = uaa.parse(user_agent);
-    return agent;
+    return uaa.parse(user_agent);
   }
 
   public Map<String, Object> extractDFields(String d_element) {
@@ -115,7 +113,7 @@ public class DataTransformation implements Serializable {
     try {
       map = mapper.readValue(d_element, HashMap.class);
     } catch (JsonProcessingException e) {
-      LOG.info("{}", d_element);
+      LOG.info("d_element errored out : {}", d_element);
     }
     return map;
   }
