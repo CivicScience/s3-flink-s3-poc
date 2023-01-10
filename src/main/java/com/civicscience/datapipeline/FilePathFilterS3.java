@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.function.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.io.FilePathFilter;
 import org.apache.flink.core.fs.Path;
 import org.slf4j.Logger;
@@ -31,6 +32,9 @@ public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> 
     String[] s = path.toString().split("/");
 
     ZonedDateTime limit = ZonedDateTime.now(ZoneId.of("UTC")).minus(ageLimit);
+    if(s.length == 8 && !StringUtils.isNumeric(s[7])){
+      return false;
+    }
     //If path length is 8, we just compare year
     if (s.length == 8 && Integer.parseInt(s[7]) >= limit.getYear()) {
       return true;
