@@ -63,30 +63,20 @@ public class DataTransformationTest {
 
   @Test
   public void testTransformURL() {
-    String s = "GET https://www.civicscience.com:443/jot?j=4076315079" +
-        ".1018291929&n=8&s=poll&t=submit&d=%7B%22target%22%3A3818%2C%22natures%22%3A%5B%22ui-classic%22%2C"
-        +
-        "%22ui-iframe%22%2C%22rootbeer-enabled%22%5D%2C%22instance%22%3A%22civsci-id-76398579-AA14Hjea%22%2C"
-        +
-        "%22isContainerSeen%22%3Atrue%2C%22context%22%3A%22%2F%2Fwww.msn" +
-        ".com%2Fen-us%2Fentertainment%2Fnews%2Fdisgraced-matt-lauer-s-trust-diminished-after-katie-couric-s"
-        +
-        "-tell-all-memoir-left-him-extremely-upset-source%2Far-AA14Hjea%3Fcvid" +
-        "%3Dd5463f8f484847f78654697b8a3d048f%22%2C%22wx%22%3A0%2C%22wy%22%3A4300%2C%22wh%22%3A872%2C%22ww%22"
-        +
-        "%3A1920%2C%22cx%22%3A4%2C%22cy%22%3A4047%2C%22askable%22%3A%22161557%22%2C%22usage%22%3A%22value%22"
-        +
-        "%2C%22position%22%3A1%2C%22questions%22%3A%5B%22161557%22%5D%2C%22comp%22%3Atrue%2C%22session%22%3A"
-        +
-        "%222efa19f0-7043-11ed-bad1-7efeaa1f43b3%22%2C%22alias%22%3A%22cookie" +
-        "%2Fdab73e100d21783af22e62bf2fd42e91%22%2C%22locale%22%3A%22en%22%2C%22rec%22%3Afalse%2C%22y%22%3A"
-        +
-        "%22_NA%22%7D HTTP/2.0";
+    String s = "GET https://www.civicscience.com:443/jot?j=2453065110.1774237028&n=2&s=poll&"
+        + "t=templates&d=%7B%22target%22%3A3832%2C%22natures%22%3A%5B%22ui-classic%22%2C"
+        + "%22ui-iframe%22%2C%22rootbeer-enabled%22%5D%2C%22instance%22%3A"
+        + "%22civsci-id-76398579-AA15U5tP%22%2C%22isContainerSeen%22%3Afalse%2C%22context%22%3A"
+        + "%22%2F%2Fwww.msn.com%2Fen-us%2Fmoney%2Fother%2Fshoppers-abandoning-walmart-after-they-"
+        + "implement-new-theft-deterrents%2Far-AA15U5tP%22%2C%22wx%22%3A0%2C%22wy%22%3A0%2C"
+        + "%22wh%22%3A694%2C%22ww%22%3A414%2C%22cx%22%3A0%2C%22cy%22%3A3322%2C%22comp"
+        + "%22%3Afalse%2C%22st%22%3A%22EVPP%22%2C%22stg%22%3A%22EVPP%3BEVVP%22%2C%22session"
+        + "%22%3A%2232c78720-8c8b-11ed-bb84-5c9584ad896b%22%2C%22locale%22%3A%22en%22%2C%22alias"
+        + "%22%3A%22cookie%2Ffb77166519aa298f45762e80d670b47d%22%7D HTTP/2.0";
     String[] parts = s.split(" ");
     Map<String, List<String>> parameters = new QueryStringDecoder(parts[1]).parameters();
-
-    Assert.assertEquals("4076315079.1018291929",parameters.get("j").get(0));
-    Assert.assertEquals("submit",parameters.get("t").get(0) );
+    Assert.assertEquals("2453065110.1774237028", parameters.get("j").get(0));
+    Assert.assertEquals("templates", parameters.get("t").get(0));
 
   }
 

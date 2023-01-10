@@ -56,10 +56,13 @@ public class DataStreamJob {
   /**
    * To specify args please follow this format --key value --key2 value2 --key3 value3
    * <p>
-   * Specifying args will override the default values.
-   * For all supported parameters, see in default-flink-params.yml and POJO {@link Profile}.
-   * When the job is submitted you may find all parameters in flink job manager UI
-   * Click on running job->Configuration tab-> User configuration section in that tab
+   * Specifying args will override the default values. For all supported parameters, see in
+   * default-flink-params.yml and POJO {@link Profile}. When the job is submitted you may find all
+   * parameters in flink job manager UI Click on running job->Configuration tab-> User configuration
+   * section in that tab
+   *
+   * @param args - use to replace default-flink-params
+   * @throws Exception when job fails to execute
    */
   public static void main(String[] args) throws Exception {
 
@@ -75,15 +78,21 @@ public class DataStreamJob {
     // FileSystem.initialize(GlobalConfiguration.loadConfiguration(System.getenv("FLINK_CONF_DIR")));
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
+    //Setting up Checkpoint configurations.
     env.getConfig().setGlobalJobParameters(profilePair.getValue());
     env.enableCheckpointing(profile.getCheckpointInterval(), CheckpointingMode.EXACTLY_ONCE);
     env.getCheckpointConfig().setCheckpointTimeout(profile.getCheckpointTimeout());
     env.getCheckpointConfig().setCheckpointStorage(profile.getCheckpointStorage());
 
+    //Example : protocol:s3a, sourceBucket:civicscience-alb and
+    // fileSourceInputPath is absolute path /AWSLogs/825286309336/elasticloadbalancing/us-east-1/
+    // which never changes
     final String fullSourceInputPath =
         profile.getProtocol() + profile.getFileSourceBucketName()
             + profile.getFileSourceInputPath();
 
+    //Setting up source for flink job.
+    //Reads the files from input path, which are gz files
     FileSource<String> source = FileSource.forRecordStreamFormat(
             new TextLineInputFormat("UTF-8"),
             new Path(fullSourceInputPath))
@@ -100,6 +109,10 @@ public class DataStreamJob {
 
     DataTransformation dataTransform = new DataTransformation();
 
+    //Filtering the stream for jot logs
+    //Filtered logs are transformed to JotLog objects
+    //JotLogFilterMetricsMapper counts number of jot logs filtered
+    //JotLogTransformMetricMapper counts number of Jot logs transformed
     DataStream<JotLog> jotLogDataStream = stream
         .filter(s -> s.contains(profile.getFileSourceFilter())).map(new JotLogFilterMetricsMapper())
         .flatMap(new FlatMapFunction<String, JotLog>() {
@@ -112,6 +125,11 @@ public class DataStreamJob {
     final String fullSinkPath =
         profile.getProtocol() + profile.getFileSinkBucketName() + profile.getFileSinkInputPath();
 
+    //Setting up the sink for job.
+    //File name starts with output and is of type json
+    //If max size is reached new file is created
+    //If a minute is passed new file is created
+    //If there is 20 seconds inactivity new file is created
     final FileSink<JotLog> sink = FileSink
         .forRowFormat(new Path(fullSinkPath), new JotEncoder())
         .withOutputFileConfig(new OutputFileConfig("output-", ".json"))

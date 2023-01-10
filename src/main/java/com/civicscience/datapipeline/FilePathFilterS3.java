@@ -19,33 +19,42 @@ public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> 
     this.ageLimit = ageLimit;
   }
 
+  /**
+   * @param path - folder path, recursively
+   * @return boolean, depending on the ageLimit path looks like
+   * s3://civicscience-alb/AWSLogs/825286309336/elasticloadbalancing/us-east-1/2023/01/01/log.gz We
+   * look at year, month and date in regard to ageLimit and return if path is within limit
+   */
   @Override
   public boolean filterPath(Path path) {
     LOG.info("Filtering path: {}", path.toString());
     String[] s = path.toString().split("/");
 
     ZonedDateTime limit = ZonedDateTime.now(ZoneId.of("UTC")).minus(ageLimit);
-      if (s.length == 8 && Integer.parseInt(s[7]) >= limit.getYear()) {
-          return true;
-      }
-    if (s.length == 9) {
-        if (Integer.parseInt(s[7]) > limit.getYear()) {
-            return true;
-        }
-        if (Integer.parseInt(s[7]) == limit.getYear()
-            && Integer.parseInt(s[8]) >= limit.getMonthValue()) {
-            return true;
-        }
+    //If path length is 8, we just compare year
+    if (s.length == 8 && Integer.parseInt(s[7]) >= limit.getYear()) {
+      return true;
     }
+    //If the path length is 9, we need to check year and month
+    if (s.length == 9) {
+      if (Integer.parseInt(s[7]) > limit.getYear()) {
+        return true;
+      }
+      if (Integer.parseInt(s[7]) == limit.getYear()
+          && Integer.parseInt(s[8]) >= limit.getMonthValue()) {
+        return true;
+      }
+    }
+    //If the path length is 10, we need to check year, month and day
     if (s.length >= 10) {
-        if (Integer.parseInt(s[7]) > limit.getYear()) {
-            return true;
-        }
-        if (Integer.parseInt(s[7]) == limit.getYear()
-            && Integer.parseInt(s[8]) >= limit.getMonthValue()
-            && Integer.parseInt(s[9]) >= limit.getDayOfMonth()) {
-            return true;
-        }
+      if (Integer.parseInt(s[7]) > limit.getYear()) {
+        return true;
+      }
+      if (Integer.parseInt(s[7]) == limit.getYear()
+          && Integer.parseInt(s[8]) >= limit.getMonthValue()
+          && Integer.parseInt(s[9]) >= limit.getDayOfMonth()) {
+        return true;
+      }
     }
     return s.length <= 8;
   }
@@ -55,6 +64,11 @@ public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> 
     return acceptFile(path);
   }
 
+  /**
+   *
+   * @param path - actual file path
+   * @return boolean
+   */
   private boolean acceptFile(Path path) {
     final String name = path.getName();
     return !name.startsWith("_")

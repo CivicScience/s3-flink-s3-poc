@@ -21,6 +21,10 @@
     <logback-classic.version>1.4.5</logback-classic.version>
     <jackson.yaml.version>2.14.1</jackson.yaml.version>
     <lombok.version>1.18.24</lombok.version>
+    <yauaa.flink.version>7.8.0</yauaa.flink.version>
+    <pushgateway.version>0.16.0</pushgateway.version>
+    <prometheus.version>1.15.2</prometheus.version>
+    <junit.version>4.13.2</junit.version>
   </properties>
 
   <repositories>
@@ -70,12 +74,12 @@
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-metrics-prometheus</artifactId>
-      <version>1.15.2</version>
+      <version>${prometheus.version}</version>
     </dependency>
     <dependency>
       <groupId>io.prometheus</groupId>
       <artifactId>simpleclient_pushgateway</artifactId>
-      <version>0.16.0</version>
+      <version>${pushgateway.version}</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -86,7 +90,7 @@
     <dependency>
       <groupId>nl.basjes.parse.useragent</groupId>
       <artifactId>yauaa-flink</artifactId>
-      <version>7.8.0</version>
+      <version>${yauaa.flink.version}</version>
     </dependency>
 
 
@@ -125,7 +129,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.2</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
 
