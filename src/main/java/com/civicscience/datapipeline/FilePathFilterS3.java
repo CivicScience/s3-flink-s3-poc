@@ -1,18 +1,27 @@
 package com.civicscience.datapipeline;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import java.io.Serializable;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Predicate;
-import org.apache.commons.lang3.StringUtils;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.flink.api.common.io.FilePathFilter;
 import org.apache.flink.core.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> {
+public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path>, Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(FilePathFilterS3.class);
+  private static final Pattern pattern = Pattern.compile(".*/(\\d{4}/\\d{2}/\\d{2})/.*");
+
+  private static final AmazonS3 amazonS3Client = AmazonS3ClientBuilder.defaultClient();
 
   private final Duration ageLimit;
 
@@ -29,38 +38,28 @@ public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> 
   @Override
   public boolean filterPath(Path path) {
     LOG.info("Filtering path: {}", path.toString());
-    String[] s = path.toString().split("/");
-
     ZonedDateTime limit = ZonedDateTime.now(ZoneId.of("UTC")).minus(ageLimit);
-    if(s.length == 8 && !StringUtils.isNumeric(s[7])){
-      return false;
-    }
-    //If path length is 8, we just compare year
-    if (s.length == 8 && Integer.parseInt(s[7]) >= limit.getYear()) {
-      return true;
-    }
-    //If the path length is 9, we need to check year and month
-    if (s.length == 9) {
-      if (Integer.parseInt(s[7]) > limit.getYear()) {
-        return true;
-      }
-      if (Integer.parseInt(s[7]) == limit.getYear()
-          && Integer.parseInt(s[8]) >= limit.getMonthValue()) {
-        return true;
-      }
-    }
-    //If the path length is 10, we need to check year, month and day
-    if (s.length >= 10) {
-      if (Integer.parseInt(s[7]) > limit.getYear()) {
-        return true;
-      }
-      if (Integer.parseInt(s[7]) == limit.getYear()
-          && Integer.parseInt(s[8]) >= limit.getMonthValue()
-          && Integer.parseInt(s[9]) >= limit.getDayOfMonth()) {
-        return true;
+    System.out.println(limit);
+    Matcher matcher = pattern.matcher(path.toString());
+    if (matcher.matches()) {
+      LocalDate d = LocalDate.parse(matcher.group(1), DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+      if (d.getYear() < limit.getYear()) {
+        return false;
+      } else {
+        if (d.getMonth().getValue() < limit.getMonth().getValue()) {
+          return false;
+        } else {
+          if (d.getDayOfMonth() < limit.getDayOfMonth()) {
+            return false;
+          } else {
+            if(amazonS3Client.getObjectMetadata(path.getParent().toString().substring(6),path.getName()).getContentLength() == 0 ) {
+              return false;
+            }
+          }
+        }
       }
     }
-    return s.length <= 8;
+    return true;
   }
 
   @Override
@@ -69,7 +68,6 @@ public class FilePathFilterS3 extends FilePathFilter implements Predicate<Path> 
   }
 
   /**
-   *
    * @param path - actual file path
    * @return boolean
    */
